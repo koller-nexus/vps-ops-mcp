@@ -61,7 +61,7 @@ test("loads defaults when only the key path is set", () => {
   process.env.VPS_SSH_KEY_PATH = keyPath;
 
   const config = loadConfig();
-  expect(config.host).toBe("64.181.163.182");
+  expect(config.host).toBe("vps.example.invalid");
   expect(config.user).toBe("ubuntu");
   expect(config.port).toBe(22);
   expect(config.sshKeyPath).toBe(keyPath);
