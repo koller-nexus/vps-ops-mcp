@@ -12,7 +12,7 @@
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "@kollernexus/vps-ops-mcp",
+      "identifier": "@koller-nexus/vps-ops-mcp",
       "version": "0.1.0",
       "runtimeHint": "bunx",
       "transport": {

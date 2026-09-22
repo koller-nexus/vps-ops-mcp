@@ -45,3 +45,5 @@ bun.lockb
 package-lock.json
 
 graphify-out/
+
+.npmrc
