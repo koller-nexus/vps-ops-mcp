@@ -1,62 +1,62 @@
 # vps-ops-mcp
 
-Servidor [MCP](https://modelcontextprotocol.io) (stdio) que opera uma VPS por SSH. O Cursor e o Codex sobem o processo com `bun` e chamam ferramentas de leitura (saúde do host, debug Unix, Docker, Compose, Swarm, firewall) e de mutação (restart, stop, start, prune), com confirmação explícita nas mutações.
+A stdio [MCP](https://modelcontextprotocol.io) server that operates one VPS over SSH. Cursor and Codex start the process with `bun` and call read-only tools (host health, Unix debug, Docker, Compose, Swarm, firewall) plus mutation tools (restart, stop, start, prune). Mutations require an explicit confirmation.
 
-O transporte é stdio. Não abra o servidor como um processo longo na mão: o cliente (Cursor ou Codex) é quem o inicia.
+Transport is stdio. Do not start the server as a long-lived process by hand: the client (Cursor or Codex) launches it.
 
-## Contribuição
+## Contributing
 
-Veja [CONTRIBUTING.md](./CONTRIBUTING.md) (branches, pull requests, verificação) e [ISSUE.md](./ISSUE.md) (como abrir uma issue).
+See [CONTRIBUTING.md](./CONTRIBUTING.md) (branches, pull requests, verification) and [ISSUE.md](./ISSUE.md) (how to file an issue).
 
-## Requisitos
+## Requirements
 
 - [Bun](https://bun.sh)
-- Python 3 (usado pelos scripts de registro)
-- Cliente OpenSSH (`ssh` no `PATH`)
-- Chave privada SSH legível, com acesso ao usuário remoto
-- No host remoto: Docker (e `sudo -n` para `ufw`, `fail2ban`, `sshd -T`, `ss` e `dmesg`, se for usar essas ferramentas)
+- Python 3 (used by the registration scripts)
+- OpenSSH client (`ssh` on `PATH`)
+- A readable SSH private key with access to the remote user
+- On the remote host: Docker (and passwordless `sudo -n` for `ufw`, `fail2ban`, `sshd -T`, `ss`, and `dmesg` if you use those tools)
 
-## Configuração
+## Configuration
 
 ```bash
 cp .env.example .env
 ```
 
-Edite `.env`. O arquivo está no `.gitignore`.
+Edit `.env`. The file is gitignored.
 
-| Variável | Obrigatória | Padrão | Função |
+| Variable | Required | Default | Purpose |
 | --- | --- | --- | --- |
-| `VPS_SSH_KEY_PATH` | sim | — | Caminho absoluto da chave privada. O processo recusa subir se o arquivo não existir ou não for legível. |
-| `VPS_HOST` | não | `vps.example.invalid` | Host SSH (placeholder; set your own host). |
-| `VPS_USER` | não | `ubuntu` | Usuário SSH. |
-| `VPS_PORT` | não | `22` | Porta SSH. |
-| `VPS_COMPOSE_DIR` | não | — | Diretório absoluto do Compose **na VPS**. Sem isso, as ferramentas de Compose exigem o argumento `dir`. |
-| `VPS_COMMAND_TIMEOUT_MS` | não | `30000` | Timeout do comando remoto. Estouro devolve `exit_code` 124. |
-| `VPS_LOG_MAX_BYTES` | não | `200000` | Teto de `stdout`/`stderr`. O excesso é cortado e `truncated` fica `true`. |
-| `VPS_ALLOW_MUTATIONS` | não | `true` | `false`, `0`, `no` ou `off` desliga todas as mutações. |
-| `VPS_SSH_KEY_PASSPHRASE` | não | — | Evite. Prefira `ssh-agent`. Os scripts de registro **não** copiam esta variável para o cliente. |
+| `VPS_SSH_KEY_PATH` | yes | — | Absolute path to the private key. The process refuses to start if the file is missing or unreadable. |
+| `VPS_HOST` | no | `vps.example.invalid` | SSH host (placeholder; set your own host). |
+| `VPS_USER` | no | `ubuntu` | SSH user. |
+| `VPS_PORT` | no | `22` | SSH port. |
+| `VPS_COMPOSE_DIR` | no | — | Absolute Compose directory **on the VPS**. Without it, Compose tools require the `dir` argument. |
+| `VPS_COMMAND_TIMEOUT_MS` | no | `30000` | Remote command timeout. Expiry returns `exit_code` 124. |
+| `VPS_LOG_MAX_BYTES` | no | `200000` | Cap for `stdout`/`stderr`. Overflow is cut and `truncated` is `true`. |
+| `VPS_ALLOW_MUTATIONS` | no | `true` | `false`, `0`, `no`, or `off` disables every mutation. |
+| `VPS_SSH_KEY_PASSPHRASE` | no | — | Avoid. Prefer `ssh-agent`. Registration scripts **do not** copy this variable into the client. |
 
-`VPS_COMPOSE_DIR` precisa ser absoluto e casar com `/^[a-zA-Z0-9/_.-]+$/` (começa com `/`).
+`VPS_COMPOSE_DIR` must be absolute and match `/^[a-zA-Z0-9/_.-]+$/` (it must start with `/`).
 
-## Instalação
+## Installation
 
 ```bash
 bun install
 ```
 
-Pacote npm (requer [Bun](https://bun.sh); o registry MCP aponta para este artefato):
+npm package (requires [Bun](https://bun.sh); the MCP Registry points at this artifact):
 
 ```bash
 bunx @koller-nexus/vps-ops-mcp
 ```
 
-Nome no MCP Registry: `io.github.koller-nexus/vps-ops-mcp`. O registry só publica metadados depois do pacote existir no npm público.
+MCP Registry name: `io.github.koller-nexus/vps-ops-mcp`. The registry publishes metadata only after the package exists on public npm.
 
-## Registrar nos clientes
+## Register with clients
 
-Os scripts gravam a configuração do MCP com as variáveis **já exportadas no shell**. Eles não leem `.env` sozinhos. Sem exportar, entram os padrões do script (host, usuário, porta e um caminho de chave local).
+The scripts write MCP config from variables **already exported in the shell**. They do not load `.env` themselves. If you skip the export, the scripts fall back to their defaults (host, user, port, and a local key path).
 
-Faça isto uma vez, na raiz do repositório, antes de cada script:
+Do this once at the repository root before each script:
 
 ```bash
 set -a
@@ -64,39 +64,39 @@ source .env
 set +a
 ```
 
-Cada execução faz backup do arquivo de destino (`*.bak.YYYYMMDDHHMMSS`) e substitui só o servidor `vps-ops`. Os outros servidores MCP permanecem.
+Each run backs up the destination file (`*.bak.YYYYMMDDHHMMSS`) and replaces only the `vps-ops` server. Other MCP servers stay in place.
 
-Variáveis opcionais dos scripts:
+Optional script variables:
 
-| Variável | Padrão | Função |
+| Variable | Default | Purpose |
 | --- | --- | --- |
-| `MCP_PROJECT_DIR` | raiz deste repositório | De onde sai o caminho de `src/index.ts`. |
-| `CURSOR_MCP_JSON` | `~/.cursor/mcp.json` | Arquivo do Cursor a atualizar. |
-| `CODEX_CONFIG` | `~/.codex/config.toml` | Arquivo do Codex a atualizar. |
+| `MCP_PROJECT_DIR` | this repository root | Source of the `src/index.ts` path. |
+| `CURSOR_MCP_JSON` | `~/.cursor/mcp.json` | Cursor file to update. |
+| `CODEX_CONFIG` | `~/.codex/config.toml` | Codex file to update. |
 
-`VPS_COMPOSE_DIR` só entra na config do cliente se estiver definida e não vazia.
+`VPS_COMPOSE_DIR` is written into the client config only when it is set and non-empty.
 
 ### Cursor
 
-Registro global (vale em qualquer workspace):
+Global registration (applies in every workspace):
 
 ```bash
 ./scripts/register-cursor-mcp.sh
 ```
 
-O script escreve em `~/.cursor/mcp.json`, no formato:
+The script writes `~/.cursor/mcp.json` in this shape:
 
 ```json
 {
   "mcpServers": {
     "vps-ops": {
       "command": "bun",
-      "args": ["/caminho/absoluto/vps-ops-mcp/src/index.ts"],
+      "args": ["/absolute/path/vps-ops-mcp/src/index.ts"],
       "env": {
-        "VPS_HOST": "seu.host",
+        "VPS_HOST": "your.host",
         "VPS_USER": "ubuntu",
         "VPS_PORT": "22",
-        "VPS_SSH_KEY_PATH": "/caminho/absoluto/chave",
+        "VPS_SSH_KEY_PATH": "/absolute/path/to/key",
         "VPS_COMMAND_TIMEOUT_MS": "30000",
         "VPS_LOG_MAX_BYTES": "200000",
         "VPS_ALLOW_MUTATIONS": "true"
@@ -106,13 +106,13 @@ O script escreve em `~/.cursor/mcp.json`, no formato:
 }
 ```
 
-Para limitar a um projeto, aponte o script para o `mcp.json` desse projeto:
+To scope it to one project, point the script at that project's `mcp.json`:
 
 ```bash
-CURSOR_MCP_JSON="/caminho/do/projeto/.cursor/mcp.json" ./scripts/register-cursor-mcp.sh
+CURSOR_MCP_JSON="/absolute/path/to/project/.cursor/mcp.json" ./scripts/register-cursor-mcp.sh
 ```
 
-Depois: recarregue a janela do Cursor (Command Palette → **Developer: Reload Window**) ou reinicie o servidor em **Settings → MCP**. O servidor aparece como `vps-ops`.
+Then reload the Cursor window (Command Palette → **Developer: Reload Window**) or restart the server under **Settings → MCP**. The server appears as `vps-ops`.
 
 ### Codex
 
@@ -120,28 +120,28 @@ Depois: recarregue a janela do Cursor (Command Palette → **Developer: Reload W
 ./scripts/register-codex-mcp.sh
 ```
 
-O script escreve em `~/.codex/config.toml`:
+The script writes `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.vps-ops]
 command = "bun"
-args = ["/caminho/absoluto/vps-ops-mcp/src/index.ts"]
+args = ["/absolute/path/vps-ops-mcp/src/index.ts"]
 
 [mcp_servers.vps-ops.env]
-VPS_HOST = "seu.host"
+VPS_HOST = "your.host"
 VPS_USER = "ubuntu"
 VPS_PORT = "22"
-VPS_SSH_KEY_PATH = "/caminho/absoluto/chave"
+VPS_SSH_KEY_PATH = "/absolute/path/to/key"
 VPS_COMMAND_TIMEOUT_MS = "30000"
 VPS_LOG_MAX_BYTES = "200000"
 VPS_ALLOW_MUTATIONS = "true"
 ```
 
-Feche e abra a sessão do Codex para ele reler o `config.toml`. Se o CLI estiver no `PATH`, `codex mcp list` deve mostrar `vps-ops`.
+Close and reopen the Codex session so it rereads `config.toml`. If the CLI is on `PATH`, `codex mcp list` should show `vps-ops`.
 
-## Verificar
+## Verify
 
-Teste o SSH fora do MCP (os mesmos flags que o servidor usa):
+Test SSH outside MCP with the same flags the server uses:
 
 ```bash
 ssh -i "$VPS_SSH_KEY_PATH" \
@@ -153,7 +153,7 @@ ssh -i "$VPS_SSH_KEY_PATH" \
   'uname -a'
 ```
 
-No Cursor ou no Codex, peça para chamar `vps_ping`. A resposta é JSON:
+In Cursor or Codex, ask the client to call `vps_ping`. The response is JSON:
 
 ```json
 {
@@ -165,55 +165,55 @@ No Cursor ou no Codex, peça para chamar `vps_ping`. A resposta é JSON:
 }
 ```
 
-`exit_code` diferente de 0 marca a chamada como erro no MCP. Se o processo sair na hora com `VPS_SSH_KEY_PATH is required` ou `missing or unreadable`, a variável não chegou no `env` do cliente — rode o script de registro de novo com o `.env` exportado.
+A non-zero `exit_code` is an MCP error. If the process exits immediately with `VPS_SSH_KEY_PATH is required` or `missing or unreadable`, the variable never reached the client `env` — rerun the registration script with `.env` exported.
 
-## Ferramentas
+## Tools
 
-Toda chamada devolve `exit_code`, `stdout`, `stderr`, `duration_ms` e `truncated`.
+Every call returns `exit_code`, `stdout`, `stderr`, `duration_ms`, and `truncated`.
 
-### Leitura
+### Read-only
 
-| Ferramenta | Argumentos | O que faz |
+| Tool | Arguments | What it does |
 | --- | --- | --- |
 | `vps_ping` | — | `uname -a`, `uptime`, `hostname`. |
 | `vps_resources` | — | `df -h`, `free -h`, load average. |
-| `vps_journal` | `unit`, `n?` (1–500, padrão 100) | `journalctl -u`. Unidade da lista (`docker`, `sshd`, `fail2ban`, `ufw`, `cron`, com ou sem `.service`) ou um nome seguro terminado em `.service`. |
-| `docker_ps` | — | `docker ps -a` em JSON lines. |
+| `vps_journal` | `unit`, `n?` (1–500, default 100) | `journalctl -u`. Unit from the allowlist (`docker`, `sshd`, `fail2ban`, `ufw`, `cron`, with or without `.service`) or a safe name ending in `.service`. |
+| `docker_ps` | — | `docker ps -a` as JSON lines. |
 | `docker_inspect` | `name` | `docker inspect`. |
-| `docker_logs` | `name`, `n?` (1–1000, padrão 200), `since?` | `docker logs --tail --timestamps`. |
+| `docker_logs` | `name`, `n?` (1–1000, default 200), `since?` | `docker logs --tail --timestamps`. |
 | `docker_stats` | — | `docker stats --no-stream`. |
-| `docker_service_ls` | — | `docker service ls` em JSON lines (Swarm). |
-| `docker_node_ls` | — | `docker node ls` em JSON lines (Swarm). |
-| `compose_ps` | `dir?` | `docker compose ps` em `dir` ou `VPS_COMPOSE_DIR`. |
-| `host_listen` | — | `ss -lntup` (`sudo -n`, senão sem sudo). |
+| `docker_service_ls` | — | `docker service ls` as JSON lines (Swarm). |
+| `docker_node_ls` | — | `docker node ls` as JSON lines (Swarm). |
+| `compose_ps` | `dir?` | `docker compose ps` in `dir` or `VPS_COMPOSE_DIR`. |
+| `host_listen` | — | `ss -lntup` (`sudo -n`, otherwise without sudo). |
 | `host_failed_units` | — | `systemctl --failed --no-pager --full`. |
-| `host_top` | — | Top 30 processos por memória (`ps aux --sort=-%mem`). |
-| `host_dmesg` | `n?` (1–200, padrão 100) | `dmesg -T` + `tail` (`sudo -n`, senão sem sudo). |
-| `host_firewall` | — | `ufw status verbose` (`sudo -n`, senão sem sudo). |
+| `host_top` | — | Top 30 processes by memory (`ps aux --sort=-%mem`). |
+| `host_dmesg` | `n?` (1–200, default 100) | `dmesg -T` + `tail` (`sudo -n`, otherwise without sudo). |
+| `host_firewall` | — | `ufw status verbose` (`sudo -n`, otherwise without sudo). |
 | `host_fail2ban` | `jail?` | `fail2ban-client status` (`sudo -n`). |
-| `ssh_hardening_check` | — | `sshd -T` filtrado: porta, password, root login, pubkey. |
+| `ssh_hardening_check` | — | Filtered `sshd -T`: port, password, root login, pubkey. |
 
-Nomes de container, serviço, imagem e jail precisam casar com `^[a-zA-Z0-9][a-zA-Z0-9_.-]*$`.
+Container, service, image, and jail names must match `^[a-zA-Z0-9][a-zA-Z0-9_.-]*$`.
 
-### Mutação
+### Mutation
 
-Exigem `confirm: true`. Com `VPS_ALLOW_MUTATIONS=false`, todas são recusadas.
+These require `confirm: true`. With `VPS_ALLOW_MUTATIONS=false`, all of them are rejected.
 
-| Ferramenta | Argumentos extra | Comando remoto |
+| Tool | Extra arguments | Remote command |
 | --- | --- | --- |
 | `docker_restart` | `name` | `docker restart` |
 | `docker_stop` | `name` | `docker stop` |
 | `docker_start` | `name` | `docker start` |
 | `compose_up` | `dir?`, `services?` | `docker compose up -d` |
 | `compose_restart` | `dir?`, `services?` | `docker compose restart` |
-| `compose_pull_up` | `dir?`, `services?` | `docker compose pull` e depois `up -d` |
-| `docker_rm` | `name`, `force_name` | `docker rm -f`. `force_name` tem de ser igual a `name`. |
-| `disk_cleanup_docker` | `confirm_volumes?` | `docker system prune -f`. Volumes só com `confirm_volumes: true`. |
+| `compose_pull_up` | `dir?`, `services?` | `docker compose pull` then `up -d` |
+| `docker_rm` | `name`, `force_name` | `docker rm -f`. `force_name` must equal `name`. |
+| `disk_cleanup_docker` | `confirm_volumes?` | `docker system prune -f`. Volumes only with `confirm_volumes: true`. |
 
-## Segurança
+## Security
 
-- Comandos remotos são fixos. Não existe ferramenta de shell livre.
-- Argumentos de nome e caminho passam por allowlist e são citados no shell.
-- SSH usa `BatchMode=yes`, `IdentitiesOnly=yes` e `StrictHostKeyChecking=accept-new`.
-- Mutação sem `confirm: true` é recusada. `docker_rm` pede o nome duas vezes. Prune de volumes pede `confirm_volumes: true`.
-- Para um cliente só de leitura, registre com `VPS_ALLOW_MUTATIONS=false`.
+- Remote commands are fixed. There is no free-form shell tool.
+- Name and path arguments go through an allowlist and are quoted in the shell.
+- SSH uses `BatchMode=yes`, `IdentitiesOnly=yes`, and `StrictHostKeyChecking=accept-new`.
+- A mutation without `confirm: true` is rejected. `docker_rm` asks for the name twice. Volume prune requires `confirm_volumes: true`.
+- For a read-only client, register with `VPS_ALLOW_MUTATIONS=false`.
