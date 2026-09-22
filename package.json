@@ -1,9 +1,30 @@
 {
-  "name": "vps-ops-mcp",
+  "name": "@kollernexus/vps-ops-mcp",
   "version": "0.1.0",
-  "module": "index.ts",
+  "description": "Stdio MCP server that inspects and (with confirmation) mutates one VPS over SSH.",
+  "mcpName": "io.github.koller-nexus/vps-ops-mcp",
+  "module": "src/index.ts",
   "type": "module",
-  "private": true,
+  "bin": {
+    "vps-ops-mcp": "src/index.ts"
+  },
+  "files": [
+    "src",
+    "server.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koller-nexus/vps-ops-mcp.git"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "bun": ">=1.2.0"
+  },
   "scripts": {
     "test": "bun test",
     "build": "bun build src/index.ts --outdir dist --target bun"
