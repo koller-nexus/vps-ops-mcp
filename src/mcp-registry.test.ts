@@ -6,7 +6,7 @@ const packagePath = resolve(root, "package.json");
 const serverJsonPath = resolve(root, "server.json");
 const versionPath = resolve(root, "VERSION");
 
-const NPM_NAME = "@kollernexus/vps-ops-mcp";
+const NPM_NAME = "@koller-nexus/vps-ops-mcp";
 const MCP_NAME = "io.github.koller-nexus/vps-ops-mcp";
 const REPO_URL = "https://github.com/koller-nexus/vps-ops-mcp";
 

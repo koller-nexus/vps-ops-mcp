@@ -47,7 +47,7 @@ bun install
 Pacote npm (requer [Bun](https://bun.sh); o registry MCP aponta para este artefato):
 
 ```bash
-bunx @kollernexus/vps-ops-mcp
+bunx @koller-nexus/vps-ops-mcp
 ```
 
 Nome no MCP Registry: `io.github.koller-nexus/vps-ops-mcp`. O registry só publica metadados depois do pacote existir no npm público.
