@@ -43,3 +43,5 @@ id_ed25519*
 bun.lock
 bun.lockb
 package-lock.json
+
+graphify-out/
