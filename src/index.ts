@@ -60,7 +60,7 @@ async function main(): Promise<void> {
     ...buildMutationTools(config),
   ];
 
-  const server = new McpServer({ name: "vps-ops", version: "1.0.0" });
+  const server = new McpServer({ name: "vps-ops", version: "0.1.0" });
   registerAll(server, tools);
 
   const transport = new StdioServerTransport();

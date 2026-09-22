@@ -1,8 +1,13 @@
 {
   "name": "vps-ops-mcp",
+  "version": "0.1.0",
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "test": "bun test",
+    "build": "bun build src/index.ts --outdir dist --target bun"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

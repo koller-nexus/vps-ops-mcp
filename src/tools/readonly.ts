@@ -136,6 +136,28 @@ export function buildReadonlyTools(config: VpsConfig): ToolDef[] {
       handler: async () => runSsh(config, "docker stats --no-stream"),
     },
     {
+      name: "docker_service_ls",
+      description:
+        "List Docker Swarm services as JSON lines (fallback to table).",
+      inputSchema: z.object({}),
+      handler: async () =>
+        runSsh(
+          config,
+          "docker service ls --format '{{json .}}' 2>/dev/null || docker service ls"
+        ),
+    },
+    {
+      name: "docker_node_ls",
+      description:
+        "List Docker Swarm nodes as JSON lines (fallback to table).",
+      inputSchema: z.object({}),
+      handler: async () =>
+        runSsh(
+          config,
+          "docker node ls --format '{{json .}}' 2>/dev/null || docker node ls"
+        ),
+    },
+    {
       name: "compose_ps",
       description: "docker compose ps in dir (arg or VPS_COMPOSE_DIR).",
       inputSchema: z.object({
@@ -181,6 +203,47 @@ export function buildReadonlyTools(config: VpsConfig): ToolDef[] {
         return runSsh(
           config,
           `sudo -n fail2ban-client status${jailArg}`
+        );
+      },
+    },
+    {
+      name: "host_listen",
+      description:
+        "Listening TCP/UDP sockets (ss -lntup). sudo -n, then fallback without sudo.",
+      inputSchema: z.object({}),
+      handler: async () =>
+        runSsh(config, "sudo -n ss -lntup 2>/dev/null || ss -lntup"),
+    },
+    {
+      name: "host_failed_units",
+      description: "Failed systemd units (systemctl --failed --no-pager).",
+      inputSchema: z.object({}),
+      handler: async () =>
+        runSsh(config, "systemctl --failed --no-pager --full"),
+    },
+    {
+      name: "host_top",
+      description: "Top 30 processes by memory (ps aux --sort=-%mem).",
+      inputSchema: z.object({}),
+      handler: async () =>
+        runSsh(config, "ps aux --sort=-%mem | head -n 31"),
+    },
+    {
+      name: "host_dmesg",
+      description:
+        "Kernel log tail via dmesg -T. N <= 200. sudo -n, then fallback without sudo.",
+      inputSchema: z.object({
+        n: z
+          .number()
+          .int()
+          .optional()
+          .describe("Tail lines (default 100, max 200)"),
+      }),
+      handler: async (args) => {
+        const n = clampInt(Number(args.n ?? 100), 1, 200);
+        return runSsh(
+          config,
+          `(sudo -n dmesg -T 2>/dev/null || dmesg -T) | tail -n ${n}`
         );
       },
     },

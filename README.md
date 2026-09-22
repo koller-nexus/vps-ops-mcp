@@ -1,6 +1,6 @@
 # vps-ops-mcp
 
-Servidor [MCP](https://modelcontextprotocol.io) (stdio) que opera uma VPS por SSH. O Cursor e o Codex sobem o processo com `bun` e chamam ferramentas de leitura (saúde do host, Docker, Compose, firewall) e de mutação (restart, stop, start, prune), com confirmação explícita nas mutações.
+Servidor [MCP](https://modelcontextprotocol.io) (stdio) que opera uma VPS por SSH. O Cursor e o Codex sobem o processo com `bun` e chamam ferramentas de leitura (saúde do host, debug Unix, Docker, Compose, Swarm, firewall) e de mutação (restart, stop, start, prune), com confirmação explícita nas mutações.
 
 O transporte é stdio. Não abra o servidor como um processo longo na mão: o cliente (Cursor ou Codex) é quem o inicia.
 
@@ -10,7 +10,7 @@ O transporte é stdio. Não abra o servidor como um processo longo na mão: o cl
 - Python 3 (usado pelos scripts de registro)
 - Cliente OpenSSH (`ssh` no `PATH`)
 - Chave privada SSH legível, com acesso ao usuário remoto
-- No host remoto: Docker (e `sudo -n` para `ufw`, `fail2ban` e `sshd -T`, se for usar essas ferramentas)
+- No host remoto: Docker (e `sudo -n` para `ufw`, `fail2ban`, `sshd -T`, `ss` e `dmesg`, se for usar essas ferramentas)
 
 ## Configuração
 
@@ -170,7 +170,13 @@ Toda chamada devolve `exit_code`, `stdout`, `stderr`, `duration_ms` e `truncated
 | `docker_inspect` | `name` | `docker inspect`. |
 | `docker_logs` | `name`, `n?` (1–1000, padrão 200), `since?` | `docker logs --tail --timestamps`. |
 | `docker_stats` | — | `docker stats --no-stream`. |
+| `docker_service_ls` | — | `docker service ls` em JSON lines (Swarm). |
+| `docker_node_ls` | — | `docker node ls` em JSON lines (Swarm). |
 | `compose_ps` | `dir?` | `docker compose ps` em `dir` ou `VPS_COMPOSE_DIR`. |
+| `host_listen` | — | `ss -lntup` (`sudo -n`, senão sem sudo). |
+| `host_failed_units` | — | `systemctl --failed --no-pager --full`. |
+| `host_top` | — | Top 30 processos por memória (`ps aux --sort=-%mem`). |
+| `host_dmesg` | `n?` (1–200, padrão 100) | `dmesg -T` + `tail` (`sudo -n`, senão sem sudo). |
 | `host_firewall` | — | `ufw status verbose` (`sudo -n`, senão sem sudo). |
 | `host_fail2ban` | `jail?` | `fail2ban-client status` (`sudo -n`). |
 | `ssh_hardening_check` | — | `sshd -T` filtrado: porta, password, root login, pubkey. |
