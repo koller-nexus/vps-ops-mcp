@@ -1,11 +1,23 @@
 {
   "version": 1,
   "skills": {
+    "devops-engineer": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/devops-engineer/SKILL.md",
+      "computedHash": "bd17df11a066010e1cf4cb5a593c6d523274b0db66459134436b3be249337ea2"
+    },
     "mcp-builder": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/mcp-builder/SKILL.md",
       "computedHash": "826e46adf81e1372282e205c34e1a2ee876e72148007726e4a2512599d2fef7b"
+    },
+    "opensource-pipeline": {
+      "source": "affaan-m/ecc",
+      "sourceType": "github",
+      "skillPath": "skills/opensource-pipeline/SKILL.md",
+      "computedHash": "2e6217c2ab6d038ffa4aa1bb9c74512ed1df96465500f9c57e04eb9fa66248e5"
     }
   }
 }
