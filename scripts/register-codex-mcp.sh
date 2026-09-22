@@ -28,22 +28,30 @@ entry, host, user, port, key = (os.environ[k] for k in
 compose = os.environ.get("VPS_COMPOSE_DIR","").strip()
 allow, timeout, logmax = (os.environ[k] for k in
     ("VPS_ALLOW_MUTATIONS","VPS_COMMAND_TIMEOUT_MS","VPS_LOG_MAX_BYTES"))
-text = path.read_text() if path.exists() else ""
-text = re.sub(r"\n?\[mcp_servers\.vps-ops\][\s\S]*?(?=\n\[|\Z)", "\n", text).rstrip() + "
+def toml_str(value: str) -> str:
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
-"
+text = path.read_text() if path.exists() else ""
+text = re.sub(
+    r"\n?\[mcp_servers\.vps-ops(?:\.env)?\][\s\S]*?(?=\n\[|\Z)",
+    "\n",
+    text,
+).rstrip() + "\n\n"
 env_lines = [
-    f'VPS_HOST = "{host}"', f'VPS_USER = "{user}"', f'VPS_PORT = "{port}"',
-    f'VPS_SSH_KEY_PATH = "{key}"', f'VPS_COMMAND_TIMEOUT_MS = "{timeout}"',
-    f'VPS_LOG_MAX_BYTES = "{logmax}"', f'VPS_ALLOW_MUTATIONS = "{allow}"',
+    f"VPS_HOST = {toml_str(host)}",
+    f"VPS_USER = {toml_str(user)}",
+    f"VPS_PORT = {toml_str(port)}",
+    f"VPS_SSH_KEY_PATH = {toml_str(key)}",
+    f"VPS_COMMAND_TIMEOUT_MS = {toml_str(timeout)}",
+    f"VPS_LOG_MAX_BYTES = {toml_str(logmax)}",
+    f"VPS_ALLOW_MUTATIONS = {toml_str(allow)}",
 ]
-if compose: env_lines.append(f'VPS_COMPOSE_DIR = "{compose}"')
+if compose:
+    env_lines.append(f"VPS_COMPOSE_DIR = {toml_str(compose)}")
 block = (
     "[mcp_servers.vps-ops]\n"
     'command = "bun"\n'
-    f'args = ["{entry}"]
-
-'
+    f"args = [{toml_str(entry)}]\n\n"
     "[mcp_servers.vps-ops.env]\n" + "\n".join(env_lines) + "\n"
 )
 path.write_text(text + block)
