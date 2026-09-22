@@ -4,6 +4,10 @@ Servidor [MCP](https://modelcontextprotocol.io) (stdio) que opera uma VPS por SS
 
 O transporte é stdio. Não abra o servidor como um processo longo na mão: o cliente (Cursor ou Codex) é quem o inicia.
 
+## Contribuição
+
+Veja [CONTRIBUTING.md](./CONTRIBUTING.md) (branches, pull requests, verificação) e [ISSUE.md](./ISSUE.md) (como abrir uma issue).
+
 ## Requisitos
 
 - [Bun](https://bun.sh)
@@ -23,7 +27,7 @@ Edite `.env`. O arquivo está no `.gitignore`.
 | Variável | Obrigatória | Padrão | Função |
 | --- | --- | --- | --- |
 | `VPS_SSH_KEY_PATH` | sim | — | Caminho absoluto da chave privada. O processo recusa subir se o arquivo não existir ou não for legível. |
-| `VPS_HOST` | não | `64.181.163.182` | Host SSH. |
+| `VPS_HOST` | não | `vps.example.invalid` | Host SSH (placeholder; set your own host). |
 | `VPS_USER` | não | `ubuntu` | Usuário SSH. |
 | `VPS_PORT` | não | `22` | Porta SSH. |
 | `VPS_COMPOSE_DIR` | não | — | Diretório absoluto do Compose **na VPS**. Sem isso, as ferramentas de Compose exigem o argumento `dir`. |

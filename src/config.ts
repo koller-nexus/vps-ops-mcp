@@ -29,7 +29,7 @@ function envInt(name: string, defaultValue: number): number {
 }
 
 export function loadConfig(): VpsConfig {
-  const host = process.env.VPS_HOST?.trim() || "64.181.163.182";
+  const host = process.env.VPS_HOST?.trim() || "vps.example.invalid";
   const user = process.env.VPS_USER?.trim() || "ubuntu";
   const port = envInt("VPS_PORT", 22);
   const sshKeyPath = process.env.VPS_SSH_KEY_PATH?.trim();
