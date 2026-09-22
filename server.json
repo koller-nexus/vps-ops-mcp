@@ -1,0 +1,81 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.koller-nexus/vps-ops-mcp",
+  "title": "VPS Ops",
+  "description": "Stdio MCP server that inspects and (with confirmation) mutates one VPS over SSH.",
+  "repository": {
+    "url": "https://github.com/koller-nexus/vps-ops-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/koller-nexus/vps-ops-mcp",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@koller-nexus/vps-ops-mcp",
+      "version": "0.1.0",
+      "runtimeHint": "bunx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "VPS_SSH_KEY_PATH",
+          "description": "Absolute path to a readable SSH private key",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "filepath"
+        },
+        {
+          "name": "VPS_HOST",
+          "description": "SSH hostname of the single target VPS",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "VPS_USER",
+          "description": "SSH username",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "VPS_PORT",
+          "description": "SSH port",
+          "isRequired": false,
+          "format": "number"
+        },
+        {
+          "name": "VPS_COMPOSE_DIR",
+          "description": "Absolute Compose directory on the remote host",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "VPS_COMMAND_TIMEOUT_MS",
+          "description": "Remote command timeout in milliseconds",
+          "isRequired": false,
+          "format": "number"
+        },
+        {
+          "name": "VPS_LOG_MAX_BYTES",
+          "description": "Stdout/stderr byte cap for remote commands",
+          "isRequired": false,
+          "format": "number"
+        },
+        {
+          "name": "VPS_ALLOW_MUTATIONS",
+          "description": "Set false to reject every mutation tool",
+          "isRequired": false,
+          "format": "boolean"
+        },
+        {
+          "name": "VPS_SSH_KEY_PASSPHRASE",
+          "description": "Optional key passphrase; prefer ssh-agent instead",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

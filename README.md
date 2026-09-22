@@ -44,6 +44,14 @@ Edite `.env`. O arquivo está no `.gitignore`.
 bun install
 ```
 
+Pacote npm (requer [Bun](https://bun.sh); o registry MCP aponta para este artefato):
+
+```bash
+bunx @koller-nexus/vps-ops-mcp
+```
+
+Nome no MCP Registry: `io.github.koller-nexus/vps-ops-mcp`. O registry só publica metadados depois do pacote existir no npm público.
+
 ## Registrar nos clientes
 
 Os scripts gravam a configuração do MCP com as variáveis **já exportadas no shell**. Eles não leem `.env` sozinhos. Sem exportar, entram os padrões do script (host, usuário, porta e um caminho de chave local).

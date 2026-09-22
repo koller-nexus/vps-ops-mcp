@@ -1,0 +1,11 @@
+**/*.test.ts
+.env
+.env.*
+specs
+.agents
+.cursor
+.specify
+.github
+graphify-out
+dist
+*.tgz
