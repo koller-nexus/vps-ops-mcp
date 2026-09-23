@@ -1,6 +1,6 @@
 {
   "name": "@koller-nexus/vps-ops-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Stdio MCP server that inspects and (with confirmation) mutates one VPS over SSH.",
   "mcpName": "io.github.koller-nexus/vps-ops-mcp",
   "module": "src/index.ts",
