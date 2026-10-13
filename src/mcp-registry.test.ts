@@ -5,6 +5,7 @@ const root = resolve(import.meta.dir, "..");
 const packagePath = resolve(root, "package.json");
 const serverJsonPath = resolve(root, "server.json");
 const versionPath = resolve(root, "VERSION");
+const publishScriptPath = resolve(root, "scripts", "publish.sh");
 
 const NPM_NAME = "@koller-nexus/vps-ops-mcp";
 const MCP_NAME = "io.github.koller-nexus/vps-ops-mcp";
@@ -55,4 +56,13 @@ test("server.json matches package.json and lists required env names", async () =
   const keyPath = npm.environmentVariables.find((e: { name: string }) => e.name === "VPS_SSH_KEY_PATH");
   expect(keyPath.isRequired).toBe(true);
   expect(keyPath.isSecret).toBe(true);
+});
+
+test("publish.sh logs into npm and the MCP registry then publishes", async () => {
+  expect(await Bun.file(publishScriptPath).exists()).toBe(true);
+  const text = await Bun.file(publishScriptPath).text();
+  expect(text).toContain("npm login");
+  expect(text).toContain("npm publish --access public");
+  expect(text).toContain("mcp-publisher login github");
+  expect(text).toContain("mcp-publisher publish");
 });

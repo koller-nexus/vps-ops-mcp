@@ -182,10 +182,12 @@ Every call returns `exit_code`, `stdout`, `stderr`, `duration_ms`, and `truncate
 | `docker_inspect` | `name` | `docker inspect`. |
 | `docker_logs` | `name`, `n?` (1–1000, default 200), `since?` | `docker logs --tail --timestamps`. |
 | `docker_stats` | — | `docker stats --no-stream`. |
-| `docker_service_ls` | — | `docker service ls` as JSON lines (Swarm). |
-| `docker_node_ls` | — | `docker node ls` as JSON lines (Swarm). |
-| `compose_ps` | `dir?` | `docker compose ps` in `dir` or `VPS_COMPOSE_DIR`. |
-| `host_listen` | — | `ss -lntup` (`sudo -n`, otherwise without sudo). |
+| `docker_service_ls` | — | `docker service ls` em JSON lines (Swarm). |
+| `docker_node_ls` | — | `docker node ls` em JSON lines (Swarm). |
+| `compose_ps` | `dir?`, `file?` | `docker compose ps` em `dir` ou `VPS_COMPOSE_DIR` (`file`, ex. `stack.yml`, vira `-f`). |
+| `compose_config_vars` | `dir?`, `file?` | Renderiza o stack (`docker compose config`) e devolve só os nomes das variáveis de ambiente por serviço, nunca os valores. |
+| `host_deps` | — | Versões de `docker`, `docker compose` (v2) e `jq`. |
+| `host_listen` | — | `ss -lntup` (`sudo -n`, senão sem sudo). |
 | `host_failed_units` | — | `systemctl --failed --no-pager --full`. |
 | `host_top` | — | Top 30 processes by memory (`ps aux --sort=-%mem`). |
 | `host_dmesg` | `n?` (1–200, default 100) | `dmesg -T` + `tail` (`sudo -n`, otherwise without sudo). |
