@@ -28,6 +28,49 @@ function resolveComposeDir(config: VpsConfig, dir?: string): string {
   return assertComposeDir(raw);
 }
 
+function composeCmd(config: VpsConfig, args: Record<string, unknown>): string {
+  const dir = resolveComposeDir(
+    config,
+    args.dir !== undefined ? String(args.dir) : undefined
+  );
+  let f = "";
+  if (args.file !== undefined && args.file !== "") {
+    f = ` -f ${shellQuote(assertContainerOrServiceName(String(args.file), "file"))}`;
+  }
+  return `cd ${shellQuote(dir)} && docker compose${f}`;
+}
+
+const composeArgs = z.object({
+  dir: z.string().optional().describe("Absolute compose project dir on VPS"),
+  file: z
+    .string()
+    .optional()
+    .describe("Compose file name inside dir, e.g. stack.yml (default: compose discovery)"),
+});
+
+// Keeps variable names only; values never leave this process.
+function envNamesOnly(result: SshResult): SshResult {
+  if (result.exit_code !== 0) return { ...result, stdout: "" };
+  if (result.truncated) {
+    return { ...result, exit_code: 1, stdout: "", stderr: "Rendered config exceeded VPS_LOG_MAX_BYTES; raise it to inspect variables." };
+  }
+  try {
+    const cfg = JSON.parse(result.stdout) as {
+      services?: Record<string, { environment?: Record<string, unknown> }>;
+    };
+    const names: Record<string, string[]> = {};
+    for (const [svc, def] of Object.entries(cfg.services ?? {})) {
+      names[svc] = Object.keys(def.environment ?? {}).sort();
+    }
+    return { ...result, stdout: JSON.stringify(names, null, 2) };
+  } catch {
+    return { ...result, exit_code: 1, stdout: "", stderr: "Could not parse docker compose config JSON." };
+  }
+}
+
+const HOST_DEPS_CMD =
+  "docker --version; docker compose version; jq --version 2>&1 || echo 'jq: not installed'";
+
 export function buildReadonlyTools(config: VpsConfig): ToolDef[] {
   return [
     {
@@ -159,20 +202,25 @@ export function buildReadonlyTools(config: VpsConfig): ToolDef[] {
     },
     {
       name: "compose_ps",
-      description: "docker compose ps in dir (arg or VPS_COMPOSE_DIR).",
-      inputSchema: z.object({
-        dir: z
-          .string()
-          .optional()
-          .describe("Absolute compose project dir on VPS"),
-      }),
-      handler: async (args) => {
-        const dir = resolveComposeDir(
-          config,
-          args.dir !== undefined ? String(args.dir) : undefined
-        );
-        return runSsh(config, `cd ${shellQuote(dir)} && docker compose ps`);
-      },
+      description: "docker compose ps in dir (arg or VPS_COMPOSE_DIR), optional file.",
+      inputSchema: composeArgs,
+      handler: async (args) => runSsh(config, `${composeCmd(config, args)} ps`),
+    },
+    {
+      name: "compose_config_vars",
+      description:
+        "Render the stack (docker compose config) and return only environment variable names per service, never values.",
+      inputSchema: composeArgs,
+      handler: async (args) =>
+        envNamesOnly(
+          await runSsh(config, `${composeCmd(config, args)} config --format json`)
+        ),
+    },
+    {
+      name: "host_deps",
+      description: "Versions of docker, docker compose (v2 plugin) and jq on the VPS.",
+      inputSchema: z.object({}),
+      handler: async () => runSsh(config, HOST_DEPS_CMD),
     },
     {
       name: "host_firewall",
@@ -261,4 +309,4 @@ export function buildReadonlyTools(config: VpsConfig): ToolDef[] {
   ];
 }
 
-export { resolveComposeDir };
+export { resolveComposeDir, envNamesOnly, composeCmd, HOST_DEPS_CMD };

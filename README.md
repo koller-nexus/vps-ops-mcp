@@ -184,7 +184,9 @@ Toda chamada devolve `exit_code`, `stdout`, `stderr`, `duration_ms` e `truncated
 | `docker_stats` | — | `docker stats --no-stream`. |
 | `docker_service_ls` | — | `docker service ls` em JSON lines (Swarm). |
 | `docker_node_ls` | — | `docker node ls` em JSON lines (Swarm). |
-| `compose_ps` | `dir?` | `docker compose ps` em `dir` ou `VPS_COMPOSE_DIR`. |
+| `compose_ps` | `dir?`, `file?` | `docker compose ps` em `dir` ou `VPS_COMPOSE_DIR` (`file`, ex. `stack.yml`, vira `-f`). |
+| `compose_config_vars` | `dir?`, `file?` | Renderiza o stack (`docker compose config`) e devolve só os nomes das variáveis de ambiente por serviço, nunca os valores. |
+| `host_deps` | — | Versões de `docker`, `docker compose` (v2) e `jq`. |
 | `host_listen` | — | `ss -lntup` (`sudo -n`, senão sem sudo). |
 | `host_failed_units` | — | `systemctl --failed --no-pager --full`. |
 | `host_top` | — | Top 30 processos por memória (`ps aux --sort=-%mem`). |
