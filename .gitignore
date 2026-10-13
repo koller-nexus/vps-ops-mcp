@@ -47,3 +47,4 @@ package-lock.json
 graphify-out/
 
 .npmrc
+.serena/
